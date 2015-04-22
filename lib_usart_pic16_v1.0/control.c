@@ -1,200 +1,190 @@
 
+#include <stdio.h>
+#include <xc.h>
 #include "pin_definitions.h"
 #include "CoreFunctions.h"
 #include "motors.h"
+#include "ultrasonic.h"
+
+unsigned long t;
+
+short errbuf[ORDER], med[5], sortbuf[5];
 
 
-int integral_rot_L, deriv_rot_L;
-int integral1_rot_L = 0;
-int deriv1_rot_L = 0;
 
-int integral_rot_R, deriv_rot_R;
-int integral1_rot_R = 0;
-int deriv1_rot_R = 0;
-
-int integral_pos, deriv_pos;
-int integral1_pos = 0;
-int deriv1_pos = 0;
-
-//
-// PID routines
-
-void reset_rot_L()
+void rotationControl(char sensor_set)
 {
-  integral_rot_L = 0;
-  integral1_rot_L = 0;
-  deriv_rot_L = 0;
-  deriv1_rot_L = 0;
-}
+  short error;
 
-void reset_rot_R()
-{
-  integral_rot_R = 0;
-  integral1_rot_R = 0;
-  deriv_rot_R = 0;
-  deriv1_rot_R = 0;
-}
+  if(sensor_set == PING)
+  readSensors();
+  else
+      readHC();
 
- int pid_rot_L(int error)
-{
-  //float kp = 0.00012;
-  //float ti = 0.022;
-  //float td = 4.1;//9.03;
+  error = (uLeft - uRight);
+  //printf("\n enter rot control: %d\n",error);
 
-  reset_rot_R();
-
-  if (error < 0)
-    error -= 2*error;
-
-  if (integral_rot_L < 0)
-    integral_rot_L = 0;
-
-  integral1_rot_L = integral_rot_L;
-  if (integral1_rot_L < 0)
-    integral1_rot_L = 0;
-
-  integral_rot_L=(int)(kp*(TS/ti)*error + integral1_rot_L);
-
-  if (deriv_rot_L < 0)
-    deriv_rot_L = 0;
-
-  deriv1_rot_L = deriv_rot_L;
-
-  if (deriv1_rot_L < 0)
-    deriv1_rot_L = 0;
-  deriv_rot_L =  (int)(kp*(td/TS)*error - deriv1_rot_L);
-
-  //Serial.print("rot correction: ");Serial.println((kp*error + integral_rot_L + deriv_rot_L));
-
-  return (int)(kp*error + integral_rot_L + deriv_rot_L);
-}
-
- int pid_rot_R(int error)
-{
-  //float kp = 0.00012;
-  //float ti = 0.022;
-  //float td = 4.1;//9.03;
-
-  reset_rot_L();
-
-  if (error < 0)
-    error -= 2*error;
-
-  if (integral_rot_R < 0)
-    integral_rot_R = 0;
-
-  integral1_rot_R = integral_rot_R;
-  if (integral1_rot_R < 0)
-    integral1_rot_R = 0;
-
-  integral_rot_R=(int)(kp*(TS/ti)*error + integral1_rot_R);
-
-  if (deriv_rot_R < 0)
-    deriv_rot_R = 0;
-
-  deriv1_rot_R = deriv_rot_R;
-
-  if (deriv1_rot_R < 0)
-    deriv1_rot_R = 0;
-  deriv_rot_R = (int)( kp*(td/TS)*error - deriv1_rot_R);
-
-  //Serial.print("rot correction: ");Serial.println((kp*error + integral_rot_R + deriv_rot_R));
-
-  return (int)(kp*error + integral_rot_R + deriv_rot_R);
-}
-
-int pid_pos(int error)
-{
-  float kp_pos = 5.20515;
-  float ti_pos = 0.0000001;
-  float td_pos = 0;//30.305;
-
-  if (error < 0)
-    error -= 2*error;
-
-  integral1_pos = integral_pos;
-  integral_pos=(int)(kp_pos*(TS/ti)*error + integral1_pos);
-
-  deriv1_pos = deriv_pos;
-  deriv_pos =  (int)(kp_pos*(td/TS)*error - deriv1_pos);
-
-  return (int)(kp_pos*error + integral_pos + deriv_pos);
-}
-
-
-void rotationControl()
-{
-  int error, dist;
-
-  // Comprobar si hay error, detener movimientos previos
-   readSensors();
-   error = uRight - uLeft;
-
-   if (error > ERR_ROT || error < -ERR_ROT && error < 300 && error > -300)
-   {
-     stopMotors();
-     delay(120);
-   }
-
-  do{
+  while((error > ERR_ROT || error < -ERR_ROT) && error < MAXROT && error > -MAXROT){
    if (millis() - lastreading >= TS)
     {
-    readSensors();
-    //if(uRight > 0 && uLeft > 0)
-    error = uRight - uLeft;
-    dist = SETPOS - (uLeft+uRight) - absval(uLeft - uRight);
+    
+    error = (uLeft - uRight);
+      if(sensor_set == PING)
+        readSensors();
+        else
+        readHC();
 
-    //Serial.print(uLeft);Serial.print("-");Serial.print(uRight);Serial.print("/");Serial.print((uLeft+uRight) - absval(error));Serial.print("=");Serial.println(error);
-    if (error < 300 && error > -300){
+
+    //printf("uleft: %d, uright: %d\n", uLeft, uRight);
+
+   if (seesBoth()){
+    //printf("EFECTIVE error ROT:  %d\n", error);
+     //t = 0;
+    if (error < MAXROT && error > -MAXROT){
     if (error > ERR_ROT)
-      rotateLeft(pid_rot_L(error));
+      rotateRight(MAX_ROT_VEL);//rotateRight(pid_rot_L(error));
      else if (error < -ERR_ROT)
-     rotateRight(pid_rot_R(error-(2*error)));
+     rotateLeft(MAX_ROT_VEL);//rotateLeft(pid_rot_R(error-(2*error)));
+    }
+
     }
 
      lastreading = millis();
-  }
+  } // end if TS
 
-  }while(error > ERR_ROT || error < -ERR_ROT && error < 300 && error > -300);
-
-
+  } // end while
+  stopMotors();
 }
 
-void positionControl(float setpoint)
+void positionControlPing(short setpoint)
+{
+   int error;
+   // Comprobar si hay error, detener movimientos previos
+   readSensors();
+   error = setpoint - (uLeft+uRight) - absval(uLeft - uRight);
+
+  while((error > ERR_POS || error < -ERR_POS) && error < MAXPOS+100 && error > -MAXPOS-100){
+     if (millis() - lastreading >= TS)
+    {
+    //     t = 0;
+    //if(uRight > 0 && uLeft > 0)
+    //rotationControl(PING);
+    error = setpoint - (uLeft+uRight) - absval(uLeft - uRight);
+    readSensors();
+
+    if (seesBoth() == 1){
+
+    //printf("EFECTIVE pos control ping: %d\n", error);
+    //Serial.print(uLeft);Serial.print("-");Serial.print(uRight);Serial.print("=pos=");Serial.println(error);
+    if (error < MAXPOS+100 && error > -MAXPOS-100){
+    if (error > ERR_POS)
+      backward(MAX_VEL);//backward(pid_pos(error));
+     else if (error < -ERR_POS)
+     forward(MAX_VEL);//forward(pid_pos(error-(2*error)));
+    }
+
+    lastreading = millis();
+
+    }   // end if TS
+    
+     }// end if seesBoth
+  } // end while
+   stopMotors();
+}
+
+
+void positionControlHC(short setpoint)
+{
+   int error;
+   // Comprobar si hay error, detener movimientos previos
+   readHC();
+   error = setpoint - (uLeft+uRight) - absval(uLeft - uRight);
+
+  while((error > ERR_POS || error < -ERR_POS) && error < MAXPOS+100 && error > -MAXPOS-100){
+     if (millis() - lastreading >= TS)
+    {
+         t = 0;
+
+    error = setpoint - (uLeft+uRight) - absval(uLeft - uRight);
+    readHC();
+
+    if (seesBoth() == 1){
+    //printf("EFECTIVE pos control HC: %d\n", error);
+    
+    if (error < MAXPOS+100 && error > -MAXPOS-100){
+    if (error > ERR_POS)
+      right(MAX_VEL);
+     else if (error < -ERR_POS)
+     left(MAX_VEL);
+    }
+    }else
+    {
+        printf("\n CANT SEE HC rot\n");
+        forward(140);
+        __delay_ms(600);
+        stopMotors();
+    }
+
+    lastreading=millis();
+
+    }   // end if TS
+
+  } // end while
+}
+
+void positionControlPieza(short setpoint)
 {
    int error;
 
    // Comprobar si hay error, detener movimientos previos
    readSensors();
-   error = setpoint - (uLeft+uRight) - absval(uLeft - uRight);
+   error = setpoint - uRight;
 
-   if (error > ERR_POS || error < -ERR_POS && error < SETPOS+100 && error > -SETPOS-100)
-   {
-     stopMotors();
-     delay(190);
-   }
-
-  do{
+  while((error > ERR_POS || error < -ERR_POS) && error < MAXPOS+100 && error > -MAXPOS-100){
      if (millis() - lastreading >= TS)
     {
-    readSensors();
+      t = 0;
     //if(uRight > 0 && uLeft > 0)
-    error = setpoint - (uLeft+uRight) - absval(uLeft - uRight);
+    //rotationControl();
+    error = filter(setpoint - uRight);
+    readSensors();
 
+    //printf("EFECTIVE PIEZA control: %d\n", error);
     //Serial.print(uLeft);Serial.print("-");Serial.print(uRight);Serial.print("=pos=");Serial.println(error);
-    if (error < SETPOS+100 && error > -SETPOS-100){
+    if (error < MAXPOS+100 && error > -MAXPOS-100){
     if (error > ERR_POS)
-      backward(pid_pos(error));
+      backward(MAX_VEL);
      else if (error < -ERR_POS)
-     forward(pid_pos(error-(2*error)));
+     forward(MAX_VEL);
     }
 
-    }
+    lastreading = millis();
 
+    }   // end if TS
 
-  }while(error > ERR_POS || error < -ERR_POS && error < SETPOS+100 && error > -SETPOS-100);
-
+  } // end while
 
 }
 
 
+void Control(char sensor_set)
+{
+    unsigned long ms;
+    ms = 0;
+    t=0;
+    printf("\nCONTROLLING...\n");
+    while (t < 10){
+          rotationControl(sensor_set);
+
+          if (sensor_set == HC){
+            positionControlHC(500);}
+          else{
+              positionControlPing(500);}
+          
+            
+           t++;
+    }
+    stopMotors();
+    printf("CONTROLLED\n");
+           
+}

@@ -1,102 +1,104 @@
 #include <xc.h>
 #include "pin_definitions.h"
+#include "usart_pic16.h"
+#include <stdio.h>
 
 
 volatile unsigned long timer0_overflow_count;
 
-volatile unsigned char pwmtime;
 volatile unsigned short pwm_LA1, pwm_LA2, pwm_LB1, pwm_LB2;
 volatile unsigned short pwm_RA1, pwm_RA2, pwm_RB1, pwm_RB2;
 volatile unsigned long ms;
 
 unsigned short uLeft, uRight;
+unsigned short limitL, limitR;
 
 unsigned long lastreading = 0;  // Discrete time sampling time in microseconds
 
 // Variables de estado
 char FORWARD;
+volatile unsigned short waitcount;
 
 
-void interrupt   t0_int  (void)        // interrupt function
+/*
+ Core Functions
+ */
 
+void putch(unsigned char byte)
 {
-    // Timer0 Interrupt handling timekeeping
-        if(INTCONbits.T0IF && INTCONbits.T0IE)
-    {                                     // if timer flag is set & interrupt enabled
-               TMR0 = 0;               // reload the timer
-               INTCONbits.T0IF = 0;   // clear interrupt flag
-                //PORTC = 0x10;             // toggle a bit to say we're alive
-                timer0_overflow_count++;
-        }
+    USARTWriteChar(byte);
+}
+
+// Timer0 initi - timekeeping services
+void setup_timer0()
+{
+    TMR0 = 0;
+    OPTION_REG = 0;
+    OPTION_REGbits.PS = 0x03;   // 16 prescaler
+    INTCONbits.T0IE = 1;
+    INTCONbits.GIE = 1;
+}
+
+void setup_timer1() // timer1 for compare pulsin functions
+{
+    T1CON = 0x20;   // 1:4 prescale value, Fosc/4=5Mhz
+    TMR1H = 0;
+    TMR1L = 0;
+}
+
+// Timer2 init - pwm services
+void setup_timer2()
+{
+    T2CON = 0x00;
+    T2CONbits.T2CKPS = 0x1;    //prescale 4
+    INTCONbits.PEIE = 1;
+    PIE1bits.TMR2IE = 1;
+    PIR1bits.TMR2IF = 0;
+    T2CONbits.TMR2ON = 1;
+}
+
+void setup_adc()
+{
+    ANSELbits.ANS5 = 1;
+    //ANSELbits.ANS6 = 1;
+    ANSELbits.ANS7 = 1;
+
+    leftLimit_mode = INPUT;
+    rightLimit_mode = INPUT;
+
+    ADCON0bits.ADCS = 0x2;  // Fosc/32 conversion clock
+    
+    ADCON1bits.VCFG0 = 0;   // vdd voltage reference +
+    ADCON1bits.VCFG1 = 0;   // vss voltage reference -
+    
+    ADCON1bits.ADFM = 0;    // left justified
+
+    ADCON0bits.ADON = 1;    // adc module enabled
+
+}
 
 
-        /*
+void readLimits()
+{
+   ADCON0bits.CHS = 0x7;   // set channel 6 RE1
+   __delay_ms(1);
+   ADCON0bits.GO_nDONE = 1;
 
-         PWM interrupt at  TMR2
-         */
+   while(ADCON0bits.GO_nDONE);
 
-        if(PIE1bits.TMR2IE && PIR1bits.TMR2IF)
-        {
-            PR2 = PR2_INIT;
-            PIR1bits.TMR2IF = 0;
+   limitR = ADRESH;
 
-            //if(pwmtime >= 255) pwmtime = 0;
+   __delay_ms(8);
 
-               //
-               // 8 PWM OUTPUTS FOR MOTORCONTROLLER
-            //  LEFT SIDE
-            if(pwmtime < pwm_LA1)
-                L_A1 = 1;
-            else
-                L_A1 = 0;
+   ADCON0bits.CHS = 0x5; // set channel 5 RE0
+   __delay_ms(1);
+   ADCON0bits.GO_nDONE = 1;
 
-            if(pwmtime < pwm_LA2)
-                L_A2 = 1;
-            else
-                L_A2 = 0;
+   while(ADCON0bits.GO_nDONE);
 
-            if(pwmtime < pwm_LB1)
-                L_B1 = 1;
-            else
-                L_B1 = 0;
+   limitL = ADRESH;
 
-            if(pwmtime < pwm_LB2)
-                L_B2 = 1;
-            else
-                L_B2 = 0;
-
-            // RIGHT SIDE
-            /*
-            if(pwmtime < pwm_RA1)
-                R_A1 = 1;
-            else
-                R_A1 = 0;
-
-            if(pwmtime < pwm_RA2)
-                R_A2 = 1;
-            else
-                R_A2 = 0;
-
-            if(pwmtime < pwm_RB1)
-                R_B1 = 1;
-            else
-                R_B1 = 0;
-
-            if(pwmtime < pwm_RB2)
-                R_B2 = 1;
-            else
-                R_B2 = 0;
-                */
-
-            // Actualizar paso pwm
-            pwmtime++;
-
-        }
-
-
-}   // end interrupt service routine
-
-
+}
 
 long map(long x, long in_min, long in_max, long out_min, long out_max)
 {
@@ -107,7 +109,6 @@ int absval(int val)
  {
      return (val<0 ? (-val) : val);
  }
-
 
 
 unsigned long micros()
@@ -140,64 +141,130 @@ void delayMicroseconds(unsigned long microseconds)
 
 }
 
-unsigned long pulseInLeft()
-{
-    unsigned long t = micros();
-    unsigned long x = 0;
-
-    while (ultraL && micros() - t < 180000)
-    {
-        asm("NOP");
-    }
-
-    x = micros() -t;
-    t = 0;
-    return  x;
-}
-
-unsigned long pulseInRight()
-{
-    unsigned long t = micros();
-
-    while (ultraR && micros() - t < 180000)
-    {
-        asm("NOP");
-    }
-
-    return micros() - t;
-}
-
-unsigned long pulseInHC()
+//
+//  Front left PING sensor
+unsigned short pulseInLeft()
 {
     unsigned long t;
-    unsigned long pulse = 0;
-    unsigned long x;
+    unsigned short pulse;
+    unsigned short maxcount;
 
     TMR1L = 0;
     TMR1H = 0;
-    t = micros();
+    pulse = 0;
+    maxcount=MAX_WAIT;
 
-    while(echo && micros() - t < 60000){asm("NOP");}
-    
-    while (!echo && micros() - t < 60000)
+    while (!ultraL)
     {
-        asm("NOP");
+
+        if(maxcount-- == 0 || maxcount > MAX_WAIT)
+            break;
     }              //Waiting for Echo
 
     T1CONbits.TMR1ON = 1;               //Timer Starts
-    while(echo && (TMR1L | (TMR1H<<8)) < 60000){
-        asm("NOP");//Waiting for Echo goes LOW
+    while(ultraL){
+        if(maxcount-- == 0 || maxcount > MAX_WAIT)
+            break;
     }
     T1CONbits.TMR1ON = 0;               //Timer Stops
 
     pulse = (TMR1L | (TMR1H<<8));
 
-    ms = pulse;
+    return pulse;
+}
 
-    x = pulse;
+//
+//  Front right PING sensor
+unsigned short pulseInRight()
+{
+    unsigned long t;
+    unsigned short pulse;
+    unsigned short maxcount;
 
-    if (pulse > 60000)
-        pulse = 60000;
+    TMR1L = 0;
+    TMR1H = 0;
+    pulse = 0;
+    maxcount=MAX_WAIT;
+
+    while (!ultraR)
+    {
+
+        if(maxcount-- == 0 || maxcount > MAX_WAIT)
+            break;
+    }              //Waiting for Echo
+
+    T1CONbits.TMR1ON = 1;               //Timer Starts
+    while(ultraR){
+        if(maxcount-- == 0 || maxcount > MAX_WAIT)
+            break;
+    }
+    T1CONbits.TMR1ON = 0;               //Timer Stops
+
+    pulse = (TMR1L | (TMR1H<<8));
+
+    return pulse;
+}
+
+//
+// Side Left HCR04 sensor
+unsigned short pulseInHC_L()
+{
+    unsigned short pulse = 0;
+    unsigned short maxcount;
+
+    TMR1L = 0;
+    TMR1H = 0;
+    maxcount=MAX_WAIT;
+    
+    while (!echoL)
+    {
+        
+        if(maxcount-- == 0 || maxcount > MAX_WAIT)
+            break;
+    }              //Waiting for Echo
+
+    T1CONbits.TMR1ON = 1;               //Timer Starts
+    while(echoL){
+        if(maxcount-- == 0 || maxcount > MAX_WAIT)
+            break;
+    }
+    T1CONbits.TMR1ON = 0;               //Timer Stops
+
+    pulse = (TMR1L | (TMR1H<<8));
+
+    return pulse;
+}
+
+//
+// Side Right HCR04 sensor
+unsigned short pulseInHC_R()
+{
+    unsigned short pulse = 0;
+    unsigned int maxcount;
+
+    TMR1L = 0;
+    TMR1H = 0;
+    maxcount=MAX_WAIT;
+
+   // while(echo && maxcount-- > 0 && maxcount < MAX_WAIT){
+    //    asm("NOP");}
+
+    while (!echoR)
+    {
+
+        if(maxcount-- == 0 || maxcount > MAX_WAIT)
+            break;
+    }              //Waiting for Echo
+
+    T1CONbits.TMR1ON = 1;               //Timer Starts
+    while(echoR){
+        if(maxcount-- == 0 || maxcount > MAX_WAIT)
+            break;
+        //asm("NOP");//Waiting for Echo goes LOW
+    }
+    T1CONbits.TMR1ON = 0;               //Timer Stops
+
+    pulse = (TMR1L | (TMR1H<<8));
 
     return pulse;
 }

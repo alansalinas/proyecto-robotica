@@ -21,7 +21,11 @@ extern "C" {
 
 #endif	/* PIN_DEFINITIONS_H */
 
-#define _XTAL_FREQ 8000000  // main Fosc operating frecuency
+/*
+            BEGIN PARAMETER DEFINTIONS
+ */
+
+#define _XTAL_FREQ 20000000  // main Fosc operating frecuency
 
 #define OUTPUT 0
 #define INPUT 1
@@ -31,63 +35,125 @@ extern "C" {
 #define TRUE 1
 #define FALSE 0
 
-#define PR2_INIT 0x75
+#define PING 0
+#define HC 1
+
+#define LEFT 0
+#define RIGHT 1
+#define FORW 2
+#define BACKW 3
+
+//
+//  GENERAL SETTINGS
+//
+
+#define PR2_INIT 170    // pwm step resolution in timer2 interruption
+#define MAX_WAIT 0xFC8  // maximum ultrasonic pulsin wait
+
+#define LIMIT_LEFT 200      // left limit sensor threshold
+#define LIMIT_RIGHT 200     // right limit sensor threshold
+
+//
+//  DEFINE PIN ASSIGNMENTS
+//
 
 /*
-  Define pin assignments
-*/
+         Motor Controller pinouts
+ */
+#define LA1_mode TRISDbits.TRISD7
+#define LA2_mode TRISDbits.TRISD6
+#define LB1_mode TRISDbits.TRISD5
+#define LB2_mode TRISDbits.TRISD4
 
-//
-// Motor controller pinouts
-#define LA1_mode TRISCbits.TRISC0
-#define LA2_mode TRISCbits.TRISC1
-#define LB1_mode TRISCbits.TRISC2
-#define LB2_mode TRISCbits.TRISC3
+#define L_A1 PORTDbits.RD7
+#define L_A2 PORTDbits.RD6
+#define L_B1 PORTDbits.RD5
+#define L_B2 PORTDbits.RD4
 
-#define L_A1 PORTCbits.RC0
-#define L_A2 PORTCbits.RC1
-#define L_B1 PORTCbits.RC2
-#define L_B2 PORTCbits.RC3
+#define RA1_mode TRISCbits.TRISC5
+#define RA2_mode TRISCbits.TRISC4
+#define RB1_mode TRISDbits.TRISD3
+#define RB2_mode TRISDbits.TRISD2
 
-#define RA1_mode TRISDbits.TRISD0
-#define RA2_mode TRISDbits.TRISD1
-#define RB1_mode TRISDbits.TRISD2
-#define RB2_mode TRISDbits.TRISD3
+#define R_A1 PORTCbits.RC5
+#define R_A2 PORTCbits.RC4
+#define R_B1 PORTDbits.RD3
+#define R_B2 PORTDbits.RD2
 
-#define R_A1 PORTDbits.RD0
-#define R_A2 PORTDbits.RD1
-#define R_B1 PORTDbits.RD2
-#define R_B2 PORTDbits.RD3
+/*
+        Ultrasonic sensor pinouts
+ */
 
-//
-// Ultrasonic sensor pinouts
+// PING frontal sensors
 #define ultraL_mode TRISBbits.TRISB0
 #define ultraR_mode TRISBbits.TRISB1
-
 #define ultraL PORTBbits.RB0
 #define ultraR PORTBbits.RB1
 
-#define trigger_mode TRISBbits.TRISB2
-#define echo_mode TRISBbits.TRISB3
+//
+// Left HC sensors
+#define triggerL_mode TRISBbits.TRISB2
+#define echoL_mode TRISBbits.TRISB3
+#define triggerL PORTBbits.RB2
+#define echoL PORTBbits.RB3
 
-#define trigger PORTBbits.RB2
-#define echo PORTBbits.RB3
-
-#define led 13
+#define triggerR_mode TRISBbits.TRISB4
+#define echoR_mode TRISBbits.TRISB5
+#define triggerR PORTBbits.RB4
+#define echoR PORTBbits.RB5
 
 //
-// Control paramters definitions
-#define ERR_ROT 5
-#define ERR_POS 35
-#define SETPOS 530
+// Limit sensors
 
-#define ORDER 11
-#define MIN_MAN 170
-#define MAX_VEL 200
-#define TS 10
+// IR sensor
+#define leftLimit_mode TRISEbits.TRISE0
+#define rightLimit_mode TRISEbits.TRISE2
 
-#define kp 5.90520
-#define ti 0.00000001
-#define td 0.000
+#define leftLimit PORTEbits.RE0
+#define rightLimit PORTEbits.RE2
 
-#define MAX_DELAY 180000
+
+
+//
+//  PARALLEL PORT INTERFACE
+//
+#define data0 TRISDbits.TRISD0
+#define data1 TRISCbits.TRISC3
+#define data2 TRISCbits.TRISC2
+#define data3 TRISCbits.TRISC1
+#define ack TRISDbits.TRISD1
+
+#define data0_mode PORTDbits.RD0
+#define data1_mode PORTCbits.RC3
+#define data2_mode PORTCbits.RC2
+#define data3_mode PORTCbits.RC1
+#define ack_mode    PORTDbits.RD1
+
+
+
+/*
+        Control Parameter Definitions
+ */
+#define ERR_ROT 23  // rotational error tolerance
+#define ERR_POS 50  // positional error tolerance
+#define MAXPOS 500 // maximum position accetable for correction
+#define MAXROT 350  // maximum error tolarated for rotation correction
+
+#define ORDER 5    // Digital Filter order
+#define MAX_VEL 50 // maximum motor pwm duty cycle
+#define MAX_ROT_VEL 57  // maximum rotational velocity for control
+#define TS 30       // digital control sampling time
+#define CONTROL_TIME 2000   // period of Control() recurrent calling during sweep
+
+#define ROTATION_DELAY 1800     // delay for rotation in switchHC or ping function
+#define MAX_DISTANCE 500        // max distance tolerated for seesBoth function
+
+#define SWEEP_SPEED 100
+#define STEP_SIZE 200   // robot step time length in milliseconds
+#define STEP_VEL 90       // robot step manipulation for motors
+#define JUMP_SPEED 220  // speed for jumping into next lane
+
+#define LEFT_LIMIT 24
+#define RIGHT_LIMIT 55
+
+

@@ -23,3 +23,7 @@ extern "C" {
 
 void setup_sensors();
 void readSensors();
+void readHC();
+void readLimits();
+char seesOne();
+char seesBoth();

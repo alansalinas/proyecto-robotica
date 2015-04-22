@@ -1,4 +1,5 @@
-
+#include <stdio.h>
+#include <stdlib.h>
 #include <xc.h>
 #include "pin_definitions.h"
 #include "CoreFunctions.h"
@@ -39,15 +40,12 @@ void setup_motors(){
 
 void forward(int vel)
 {
-
-  vel = map(vel, 0, 490, 0, MAX_VEL);
-
-  if(vel > MAX_VEL)
-  vel = MAX_VEL;
+ // if(vel > MAX_VEL)
+  //vel = MAX_VEL;
 
   FORWARD = TRUE;
 
-  //Serial.print("forward: ");Serial.println(vel);
+  //vel = MAX_VEL;
 
  FRONT_LEFT_FORWARD(vel)
  FRONT_RIGHT_FORWARD(vel)
@@ -57,15 +55,12 @@ void forward(int vel)
 
 void backward(int vel)
 {
+  //if(vel > MAX_VEL)
+  //vel = MAX_VEL;
 
-  vel = map(vel, 0, 490, 0, MAX_VEL);
+ FORWARD = FALSE;
 
-  if(vel > MAX_VEL)
-  vel = MAX_VEL;
-
-  FORWARD = FALSE;
-
-  //Serial.print("backward: ");Serial.println(vel);
+ //vel = MAX_VEL;
 
  FRONT_LEFT_BACKWARD(vel)
  FRONT_RIGHT_BACKWARD(vel)
@@ -76,20 +71,27 @@ void backward(int vel)
 
 void left(int vel)
 {
+    // DEBUG
+    //printf("LEFT: %d\n",vel);
+
+    //vel=MAX_VEL;
+
  FRONT_LEFT_BACKWARD(vel)
  BACK_LEFT_FORWARD(vel)
 
  FRONT_RIGHT_FORWARD(vel)
- BACK_RIGHT_BACKWARD(vel)
+ BACK_RIGHT_BACKWARD(vel+8)
 }
 
 void right(int vel)
 {
+
+ //printf("RIGHT: %d\n",vel);
  FRONT_LEFT_FORWARD(vel)
  BACK_LEFT_BACKWARD(vel)
 
  FRONT_RIGHT_BACKWARD(vel)
- BACK_RIGHT_FORWARD(vel)
+ BACK_RIGHT_FORWARD(vel+8)
 }
 
 void stopMotors()
@@ -102,15 +104,15 @@ void stopMotors()
 
 void rotateLeft(int vel)
 {
-
-  vel = map(vel, 0, 300, 0, MAX_VEL);
-
-  if(vel > MAX_VEL)
+ if(vel > MAX_VEL)
   vel = MAX_VEL;
 
-  //Serial.print("left: ");Serial.println(vel);
+ //vel=44;
 
-  FRONT_LEFT_BACKWARD(vel)
+ // DEBUG
+ //printf("ROTATE LEFT speed: %d\n", vel);
+
+ FRONT_LEFT_BACKWARD(vel)
  BACK_LEFT_BACKWARD(vel)
  FRONT_RIGHT_FORWARD(vel)
  BACK_RIGHT_FORWARD(vel)
@@ -119,15 +121,14 @@ void rotateLeft(int vel)
 
 void rotateRight(int vel)
 {
-
-  vel = map(vel, 0, 300, 0, MAX_VEL);
-
-  if(vel > MAX_VEL)
+ if(vel > MAX_VEL)
   vel = MAX_VEL;
 
-  //Serial.print("right: ");Serial.println(vel);
+ //vel=44;
+ // DEBUG
+  //printf("ROTATE RIGHT speed: %d\n", vel);
 
-  FRONT_RIGHT_BACKWARD(vel)
+ FRONT_RIGHT_BACKWARD(vel)
  BACK_RIGHT_BACKWARD(vel)
  FRONT_LEFT_FORWARD(vel)
  BACK_LEFT_FORWARD(vel)
