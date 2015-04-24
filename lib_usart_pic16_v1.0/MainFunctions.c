@@ -155,3 +155,71 @@ void buscaHoyo(char initial_direction){
    
 }
 
+void goto_oilrigs()
+{
+    printf("START OIL RIG NAVIGATION\n");
+    printf("FIRST BUMP\n");
+
+    buscaHoyo(LEFT);
+    forward(JUMP_SPEED);
+    __delay_ms(JUMP_DELAY);
+        stopMotors();
+    printf("SECOND BUMP\n");
+
+        buscaHoyo(LEFT);
+    forward(JUMP_SPEED);
+    __delay_ms(JUMP_DELAY);
+        stopMotors();
+
+    printf("THIRD BUMP\n");
+
+      buscaHoyo(LEFT);
+    forward(JUMP_SPEED);
+    __delay_ms(JUMP_DELAY);
+        stopMotors();
+
+    printf("OIL RIGS ZONE OK\n");
+}
+
+void buscaRig()
+{
+    char dire = RIGHT;
+    unsigned long t, t_control;
+
+    t = millis();
+
+    do{
+        if(millis() - t_control > CONTROL_TIME)
+        {
+            Control(PING);
+
+            printf("%d, %d\n", uLeft, uRight);
+            t_control = millis();
+        }
+    
+    if(millis() - t > TS){
+
+          readLimits();
+          if(limitR < RIGHT_LIMIT)
+              dire=LEFT;
+
+          if(limitL < LEFT_LIMIT)
+              dire=RIGHT;
+
+          if(dire==LEFT)
+              left(SWEEP_SPEED);
+          else
+              right(SWEEP_SPEED);
+          //printf("right limit: %u, left limit: %u\n", limitR,limitL);
+
+          readSensors();
+          t=millis();
+        }
+
+        }while (!seesBoth());
+
+        stopMotors();
+        printf("FOUND FIRST RIG\n");
+        
+}   // end busca oilrig
+

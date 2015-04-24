@@ -40,13 +40,6 @@ void setup_motors(){
 
 void forward(int vel)
 {
- // if(vel > MAX_VEL)
-  //vel = MAX_VEL;
-
-  FORWARD = TRUE;
-
-  //vel = MAX_VEL;
-
  FRONT_LEFT_FORWARD(vel)
  FRONT_RIGHT_FORWARD(vel)
  BACK_LEFT_FORWARD(vel)
@@ -55,13 +48,6 @@ void forward(int vel)
 
 void backward(int vel)
 {
-  //if(vel > MAX_VEL)
-  //vel = MAX_VEL;
-
- FORWARD = FALSE;
-
- //vel = MAX_VEL;
-
  FRONT_LEFT_BACKWARD(vel)
  FRONT_RIGHT_BACKWARD(vel)
  BACK_LEFT_BACKWARD(vel)
@@ -73,9 +59,6 @@ void left(int vel)
 {
     // DEBUG
     //printf("LEFT: %d\n",vel);
-
-    //vel=MAX_VEL;
-
  FRONT_LEFT_BACKWARD(vel)
  BACK_LEFT_FORWARD(vel)
 
@@ -104,11 +87,8 @@ void stopMotors()
 
 void rotateLeft(int vel)
 {
- if(vel > MAX_VEL)
-  vel = MAX_VEL;
-
- //vel=44;
-
+ if(vel > MAX_ROT_VEL)
+  vel = MAX_ROT_VEL;
  // DEBUG
  //printf("ROTATE LEFT speed: %d\n", vel);
 
@@ -121,10 +101,8 @@ void rotateLeft(int vel)
 
 void rotateRight(int vel)
 {
- if(vel > MAX_VEL)
-  vel = MAX_VEL;
-
- //vel=44;
+ if(vel > MAX_ROT_VEL)
+  vel = MAX_ROT_VEL;
  // DEBUG
   //printf("ROTATE RIGHT speed: %d\n", vel);
 

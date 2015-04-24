@@ -8,9 +8,6 @@
 
 unsigned long t;
 
-short errbuf[ORDER], med[5], sortbuf[5];
-
-
 
 void rotationControl(char sensor_set)
 {
@@ -35,16 +32,14 @@ void rotationControl(char sensor_set)
         readHC();
 
 
-    //printf("uleft: %d, uright: %d\n", uLeft, uRight);
-
    if (seesBoth()){
     //printf("EFECTIVE error ROT:  %d\n", error);
      //t = 0;
     if (error < MAXROT && error > -MAXROT){
     if (error > ERR_ROT)
-      rotateRight(MAX_ROT_VEL);//rotateRight(pid_rot_L(error));
+      rotateRight(MAX_ROT_VEL);
      else if (error < -ERR_ROT)
-     rotateLeft(MAX_ROT_VEL);//rotateLeft(pid_rot_R(error-(2*error)));
+     rotateLeft(MAX_ROT_VEL);
     }
 
     }
@@ -66,21 +61,19 @@ void positionControlPing(short setpoint)
   while((error > ERR_POS || error < -ERR_POS) && error < MAXPOS+100 && error > -MAXPOS-100){
      if (millis() - lastreading >= TS)
     {
-    //     t = 0;
-    //if(uRight > 0 && uLeft > 0)
-    //rotationControl(PING);
+     //t = 0;
+
     error = setpoint - (uLeft+uRight) - absval(uLeft - uRight);
     readSensors();
 
     if (seesBoth() == 1){
 
     //printf("EFECTIVE pos control ping: %d\n", error);
-    //Serial.print(uLeft);Serial.print("-");Serial.print(uRight);Serial.print("=pos=");Serial.println(error);
     if (error < MAXPOS+100 && error > -MAXPOS-100){
     if (error > ERR_POS)
-      backward(MAX_VEL);//backward(pid_pos(error));
+      backward(MAX_VEL);
      else if (error < -ERR_POS)
-     forward(MAX_VEL);//forward(pid_pos(error-(2*error)));
+     forward(MAX_VEL);
     }
 
     lastreading = millis();
@@ -117,12 +110,6 @@ void positionControlHC(short setpoint)
      else if (error < -ERR_POS)
      left(MAX_VEL);
     }
-    }else
-    {
-        printf("\n CANT SEE HC rot\n");
-        forward(140);
-        __delay_ms(600);
-        stopMotors();
     }
 
     lastreading=millis();
@@ -130,56 +117,62 @@ void positionControlHC(short setpoint)
     }   // end if TS
 
   } // end while
+
+   stopMotors();
 }
 
 void positionControlPieza(short setpoint)
 {
    int error;
+   unsigned long t_2 = millis();
 
    // Comprobar si hay error, detener movimientos previos
    readSensors();
    error = setpoint - uRight;
 
-  while((error > ERR_POS || error < -ERR_POS) && error < MAXPOS+100 && error > -MAXPOS-100){
+  while((error > ERR_POS || error < -ERR_POS)){ // && error < MAXPOS+100 && error > -MAXPOS-100
      if (millis() - lastreading >= TS)
     {
-      t = 0;
-    //if(uRight > 0 && uLeft > 0)
-    //rotationControl();
-    error = filter(setpoint - uRight);
+    error = setpoint - uRight;
     readSensors();
 
     //printf("EFECTIVE PIEZA control: %d\n", error);
-    //Serial.print(uLeft);Serial.print("-");Serial.print(uRight);Serial.print("=pos=");Serial.println(error);
-    if (error < MAXPOS+100 && error > -MAXPOS-100){
+    //if (error < MAXPOS+100 && error > -MAXPOS-100){
     if (error > ERR_POS)
       backward(MAX_VEL);
      else if (error < -ERR_POS)
      forward(MAX_VEL);
-    }
+    //}
 
     lastreading = millis();
 
     }   // end if TS
 
-  } // end while
 
+     if(millis() - t_2 > 2000)
+     {
+        left(50);
+            __delay_ms(400);
+            t_2 = millis();
+
+     }
+
+  } // end while
+  stopMotors();
 }
 
 
 void Control(char sensor_set)
 {
-    unsigned long ms;
-    ms = 0;
     t=0;
     printf("\nCONTROLLING...\n");
-    while (t < 10){
+    while (t < 8){
           rotationControl(sensor_set);
 
           if (sensor_set == HC){
-            positionControlHC(500);}
+            positionControlHC(POS_SETPOINT_HC);}
           else{
-              positionControlPing(500);}
+              positionControlPing(POS_SETPOINT_PING);}
           
             
            t++;

@@ -134,26 +134,29 @@ extern "C" {
 /*
         Control Parameter Definitions
  */
-#define ERR_ROT 23  // rotational error tolerance
-#define ERR_POS 50  // positional error tolerance
+#define ERR_ROT 15  // rotational error tolerance
+#define ERR_POS 40  // positional error tolerance
 #define MAXPOS 500 // maximum position accetable for correction
 #define MAXROT 350  // maximum error tolarated for rotation correction
+#define POS_SETPOINT_PING 400    // setpoint for position contol during navigation
+#define POS_SETPOINT_HC 110
 
 #define ORDER 5    // Digital Filter order
 #define MAX_VEL 50 // maximum motor pwm duty cycle
 #define MAX_ROT_VEL 57  // maximum rotational velocity for control
-#define TS 30       // digital control sampling time
-#define CONTROL_TIME 2000   // period of Control() recurrent calling during sweep
+#define TS 50       // digital control sampling time
+#define CONTROL_TIME 1700   // period of Control() recurrent calling during sweep
 
 #define ROTATION_DELAY 1800     // delay for rotation in switchHC or ping function
 #define MAX_DISTANCE 500        // max distance tolerated for seesBoth function
 
-#define SWEEP_SPEED 100
+#define SWEEP_SPEED 120
 #define STEP_SIZE 200   // robot step time length in milliseconds
 #define STEP_VEL 90       // robot step manipulation for motors
 #define JUMP_SPEED 220  // speed for jumping into next lane
+#define JUMP_DELAY 1100 // delay for bump jump in milliseconds
 
-#define LEFT_LIMIT 24
+#define LEFT_LIMIT 48
 #define RIGHT_LIMIT 55
 
 

@@ -29,3 +29,5 @@ void SwitchToHC();
 void sweep(char direction);
 void step(char direction);
 void buscaHoyo(char initial_direction);
+void goto_oilrigs();
+void buscaRig();
