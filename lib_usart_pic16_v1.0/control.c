@@ -7,6 +7,7 @@
 #include "ultrasonic.h"
 
 unsigned long t;
+unsigned char times;
 
 
 void rotationControl(char sensor_set)
@@ -121,10 +122,49 @@ void positionControlHC(short setpoint)
    stopMotors();
 }
 
-void positionControlPieza(short setpoint)
+void positionControlHC_pieza(short setpoint)
+{
+   int error;
+   // Comprobar si hay error, detener movimientos previos
+   readHC();
+   error = setpoint - uRight;
+
+  while((error > ERR_POS || error < -ERR_POS) && error < MAXPOS+100 && error > -MAXPOS-100){
+     if (millis() - lastreading >= TS)
+    {
+         times = 0;
+
+    error = setpoint - uRight;
+    readHC();
+
+    if (seesBoth() == 1){
+    printf("EFECTIVE pos control HC pieza: %d\n", uRight);
+
+    if (error < MAXPOS+100 && error > -MAXPOS-100){
+    if (error > ERR_POS)
+      right(60);
+     else if (error < -ERR_POS)
+     left(60);
+    }
+    }
+
+    lastreading=millis();
+
+    }   // end if TS
+
+  } // end while
+   times++;
+   printf("TIMES UPDATE: %u\n",times);
+   stopMotors();
+}
+
+void positionControlPing_pieza(short setpoint)
 {
    int error;
    unsigned long t_2 = millis();
+   times = 0;
+
+   while (times < 8){
 
    // Comprobar si hay error, detener movimientos previos
    readSensors();
@@ -133,6 +173,7 @@ void positionControlPieza(short setpoint)
   while((error > ERR_POS || error < -ERR_POS)){ // && error < MAXPOS+100 && error > -MAXPOS-100
      if (millis() - lastreading >= TS)
     {
+         times = 0;
     error = setpoint - uRight;
     readSensors();
 
@@ -151,14 +192,17 @@ void positionControlPieza(short setpoint)
 
      if(millis() - t_2 > 2000)
      {
-        left(50);
-            __delay_ms(400);
+            left(50);
+            __delay_ms(100);
             t_2 = millis();
 
      }
 
   } // end while
   stopMotors();
+  times++;
+  printf("TIMES UPDATE: %u\n",times);
+   }// end main while (times)
 }
 
 
@@ -180,4 +224,16 @@ void Control(char sensor_set)
     stopMotors();
     printf("CONTROLLED\n");
            
+}
+
+void ControlPieza()
+{
+    times = 0;
+    printf("ENTER CONTROL LOOP\n");
+    while (times < 8)
+    {
+        positionControlHC_pieza(POS_3);
+    }
+    printf("EXIT CONTROL LOOP\n");
+
 }

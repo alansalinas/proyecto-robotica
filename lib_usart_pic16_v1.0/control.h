@@ -24,7 +24,8 @@ extern "C" {
   void rotationControl(char sensor_set);
   void positionControlPing(short setpoint);
   void positionControlHC(short setpoint);
-    void positionControlPieza(short setpoint);
+  void positionControlHC_pieza(short setpoint);
+    void positionControlPing_pieza(short setpoint);
 
     void Control(char sensor_set);
   

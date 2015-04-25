@@ -135,7 +135,7 @@ extern "C" {
         Control Parameter Definitions
  */
 #define ERR_ROT 15  // rotational error tolerance
-#define ERR_POS 40  // positional error tolerance
+#define ERR_POS 10  // positional error tolerance
 #define MAXPOS 500 // maximum position accetable for correction
 #define MAXROT 350  // maximum error tolarated for rotation correction
 #define POS_SETPOINT_PING 400    // setpoint for position contol during navigation
@@ -158,5 +158,9 @@ extern "C" {
 
 #define LEFT_LIMIT 48
 #define RIGHT_LIMIT 55
+
+// setpoints para piezas con sensor HC derecho
+#define POS_2 195
+#define POS_3 392
 
 

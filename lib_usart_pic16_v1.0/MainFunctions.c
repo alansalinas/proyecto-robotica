@@ -23,7 +23,6 @@ void goToPos2(){
 }
 
 
-
 void SwitchToPing()
 {
     printf("\nBEGIN\n");
@@ -62,8 +61,14 @@ void SwitchToHC()
 }
 
 void goToPieza(){
-    SwitchToHC();
+    //SwitchToHC();
+    printf("GO TO PIEZA 1\n");
+    left(50);
+    __delay_ms(800);
 
+    printf("FINISHED init, control de pieza->seeking...\n");
+
+    positionControlPing_pieza(100);
 }
 
 void sweep(char direction){
@@ -222,4 +227,3 @@ void buscaRig()
         printf("FOUND FIRST RIG\n");
         
 }   // end busca oilrig
-
