@@ -30,4 +30,5 @@ void sweep(char direction);
 void step(char direction);
 void buscaHoyo(char initial_direction);
 void goto_oilrigs();
-void buscaRig();
+void buscaRig(char init);
+void grab_pieza1();

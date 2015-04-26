@@ -29,7 +29,7 @@ extern volatile unsigned long timer0_overflow_count;
 extern volatile unsigned short pwm_LA1, pwm_LA2, pwm_LB1, pwm_LB2;
 extern volatile unsigned short pwm_RA1, pwm_RA2, pwm_RB1, pwm_RB2;
 
-extern unsigned short uLeft, uRight;
+extern short uLeft, uRight;
 extern unsigned short limitR, limitL;
 
 extern unsigned long lastreading;

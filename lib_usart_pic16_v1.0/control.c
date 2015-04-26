@@ -7,7 +7,7 @@
 #include "ultrasonic.h"
 
 unsigned long t;
-unsigned char times;
+char times;
 
 
 void rotationControl(char sensor_set)
@@ -35,7 +35,7 @@ void rotationControl(char sensor_set)
 
    if (seesBoth()){
     //printf("EFECTIVE error ROT:  %d\n", error);
-     //t = 0;
+
     if (error < MAXROT && error > -MAXROT){
     if (error > ERR_ROT)
       rotateRight(MAX_ROT_VEL);
@@ -69,7 +69,7 @@ void positionControlPing(short setpoint)
 
     if (seesBoth() == 1){
 
-    //printf("EFECTIVE pos control ping: %d\n", error);
+    //printf("EFECTIVE pos control ping: %d, reading: %d\n", error,(uLeft+uRight) - absval(uLeft - uRight));
     if (error < MAXPOS+100 && error > -MAXPOS-100){
     if (error > ERR_POS)
       backward(MAX_VEL);
@@ -206,34 +206,36 @@ void positionControlPing_pieza(short setpoint)
 }
 
 
-void Control(char sensor_set)
+void Control(char sensor_set, short setpoint)
 {
-    t=0;
+    times=0;
     printf("\nCONTROLLING...\n");
-    while (t < 8){
+    while (times < DEBOUNCE_COUNT){
           rotationControl(sensor_set);
 
           if (sensor_set == HC){
-            positionControlHC(POS_SETPOINT_HC);}
+            positionControlHC(setpoint);}
           else{
-              positionControlPing(POS_SETPOINT_PING);}
+              positionControlPing(setpoint);}
           
             
-           t++;
+           times++;
     }
     stopMotors();
     printf("CONTROLLED\n");
            
 }
 
-void ControlPieza()
+void ControlPieza(short setpoint)
 {
     times = 0;
     printf("ENTER CONTROL LOOP\n");
-    while (times < 8)
+    while (times < DEBOUNCE_COUNT)
     {
-        positionControlHC_pieza(POS_3);
+        positionControlHC_pieza(setpoint);
     }
     printf("EXIT CONTROL LOOP\n");
 
 }
+
+

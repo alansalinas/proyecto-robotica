@@ -10,7 +10,7 @@ volatile unsigned short pwm_LA1, pwm_LA2, pwm_LB1, pwm_LB2;
 volatile unsigned short pwm_RA1, pwm_RA2, pwm_RB1, pwm_RB2;
 volatile unsigned long ms;
 
-unsigned short uLeft, uRight;
+short uLeft, uRight;
 unsigned short limitL, limitR;
 
 unsigned long lastreading = 0;  // Discrete time sampling time in microseconds
@@ -143,10 +143,10 @@ void delayMicroseconds(unsigned long microseconds)
 
 //
 //  Front left PING sensor
-unsigned short pulseInLeft()
+unsigned long pulseInLeft()
 {
     unsigned long t;
-    unsigned short pulse;
+    short pulse;
     unsigned short maxcount;
 
     TMR1L = 0;
@@ -175,10 +175,10 @@ unsigned short pulseInLeft()
 
 //
 //  Front right PING sensor
-unsigned short pulseInRight()
+unsigned long pulseInRight()
 {
     unsigned long t;
-    unsigned short pulse;
+    short pulse;
     unsigned short maxcount;
 
     TMR1L = 0;
@@ -207,9 +207,9 @@ unsigned short pulseInRight()
 
 //
 // Side Left HCR04 sensor
-unsigned short pulseInHC_L()
+unsigned long pulseInHC_L()
 {
-    unsigned short pulse = 0;
+    short pulse = 0;
     unsigned short maxcount;
 
     TMR1L = 0;
@@ -237,7 +237,7 @@ unsigned short pulseInHC_L()
 
 //
 // Side Right HCR04 sensor
-unsigned short pulseInHC_R()
+short pulseInHC_R()
 {
     unsigned short pulse = 0;
     unsigned int maxcount;

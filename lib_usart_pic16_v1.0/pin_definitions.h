@@ -53,6 +53,8 @@ extern "C" {
 #define LIMIT_LEFT 200      // left limit sensor threshold
 #define LIMIT_RIGHT 200     // right limit sensor threshold
 
+#define DEBOUNCE_COUNT 8    // count for debouncing stable state
+
 //
 //  DEFINE PIN ASSIGNMENTS
 //
@@ -147,7 +149,7 @@ extern "C" {
 #define TS 50       // digital control sampling time
 #define CONTROL_TIME 1700   // period of Control() recurrent calling during sweep
 
-#define ROTATION_DELAY 1800     // delay for rotation in switchHC or ping function
+#define ROTATION_DELAY 1600     // delay for rotation in switchHC or ping function
 #define MAX_DISTANCE 500        // max distance tolerated for seesBoth function
 
 #define SWEEP_SPEED 120
@@ -156,8 +158,14 @@ extern "C" {
 #define JUMP_SPEED 220  // speed for jumping into next lane
 #define JUMP_DELAY 1100 // delay for bump jump in milliseconds
 
+#define SWITCH_SPEED 140   // speed for 90dg sensor switching
+
 #define LEFT_LIMIT 48
 #define RIGHT_LIMIT 55
+
+#define PIEZA1_THRESHOLD 150    // limite para ver en ping derecho pieza1
+#define PIEZA1_DELAY 220
+#define PIEZA1_SETPOINT 606
 
 // setpoints para piezas con sensor HC derecho
 #define POS_2 195
