@@ -16,7 +16,7 @@ unsigned short limitL, limitR;
 unsigned long lastreading = 0;  // Discrete time sampling time in microseconds
 
 // Variables de estado
-char FORWARD;
+//char FORWARD;
 volatile unsigned short waitcount;
 
 
@@ -125,10 +125,7 @@ unsigned long millis()
 void delay(unsigned long milliseconds)
 {
     unsigned long t = millis();
-    while (millis() - t < milliseconds)
-    {
-        asm("NOP");
-    }
+    while (millis() - t < milliseconds);
 }
 
 void delayMicroseconds(unsigned long microseconds)

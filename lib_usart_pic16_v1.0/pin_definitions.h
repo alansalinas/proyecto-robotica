@@ -119,25 +119,39 @@ extern "C" {
 //
 //  PARALLEL PORT INTERFACE
 //
-#define data0 TRISDbits.TRISD0
-#define data1 TRISCbits.TRISC3
-#define data2 TRISCbits.TRISC2
-#define data3 TRISCbits.TRISC1
-#define ack TRISDbits.TRISD1
+#define data0_mode TRISDbits.TRISD0
+#define data1_mode TRISCbits.TRISC3
+#define data2_mode TRISCbits.TRISC2
+#define data3_mode TRISCbits.TRISC1
+#define ack_mode TRISDbits.TRISD1
 
-#define data0_mode PORTDbits.RD0
-#define data1_mode PORTCbits.RC3
-#define data2_mode PORTCbits.RC2
-#define data3_mode PORTCbits.RC1
-#define ack_mode    PORTDbits.RD1
+#define data0 PORTDbits.RD0
+#define data1 PORTCbits.RC3
+#define data2 PORTCbits.RC2
+#define data3 PORTCbits.RC1
+#define ack PORTDbits.RD1
+
+//
+//  Comm protocol commands
+#define POSITION1_CMD	1
+#define POSITION2_CMD 	2
+#define GOTO_LOADZONE_CMD   3
+#define TOOL1_CMD   4
+#define TOOL2_CMD   5
+#define TOOL3_CMD   6
+#define GOTO_OILRIG_R_CMD   7
+#define GOTO_OILRIG_T_CMD   8
+#define GOTO_OILRIG_C_CMD   9
+#define PUSH_TOOL_CMD	11
+#define RETURN_CMD  12
 
 
 
 /*
         Control Parameter Definitions
  */
-#define ERR_ROT 15  // rotational error tolerance
-#define ERR_POS 10  // positional error tolerance
+#define ERR_ROT 10  // rotational error tolerance
+#define ERR_POS 9  // positional error tolerance
 #define MAXPOS 500 // maximum position accetable for correction
 #define MAXROT 350  // maximum error tolarated for rotation correction
 #define POS_SETPOINT_PING 400    // setpoint for position contol during navigation
@@ -152,7 +166,7 @@ extern "C" {
 #define ROTATION_DELAY 1600     // delay for rotation in switchHC or ping function
 #define MAX_DISTANCE 500        // max distance tolerated for seesBoth function
 
-#define SWEEP_SPEED 120
+#define SWEEP_SPEED 180
 #define STEP_SIZE 200   // robot step time length in milliseconds
 #define STEP_VEL 90       // robot step manipulation for motors
 #define JUMP_SPEED 220  // speed for jumping into next lane
@@ -164,11 +178,14 @@ extern "C" {
 #define RIGHT_LIMIT 55
 
 #define PIEZA1_THRESHOLD 150    // limite para ver en ping derecho pieza1
-#define PIEZA1_DELAY 220
-#define PIEZA1_SETPOINT 606
+#define PIEZA1_DELAY 250    // setpoint para centrarse horizonatlmente
+#define PIEZA1_SETPOINT 606 // setpoint para centrar verticalmente
+#define PIEZA1_LOADZONE_SETPOINT 112    // setpoint de aproximacion en paso3
 
 // setpoints para piezas con sensor HC derecho
-#define POS_2 195
+#define POS_2 201
 #define POS_3 392
+
+#define POS2_DELAY 3150
 
 

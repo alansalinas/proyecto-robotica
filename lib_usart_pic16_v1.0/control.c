@@ -6,7 +6,7 @@
 #include "motors.h"
 #include "ultrasonic.h"
 
-unsigned long t;
+//unsigned long t;
 char times;
 
 
@@ -97,7 +97,7 @@ void positionControlHC(short setpoint)
   while((error > ERR_POS || error < -ERR_POS) && error < MAXPOS+100 && error > -MAXPOS-100){
      if (millis() - lastreading >= TS)
     {
-         t = 0;
+         //t = 0;
 
     error = setpoint - (uLeft+uRight) - absval(uLeft - uRight);
     readHC();

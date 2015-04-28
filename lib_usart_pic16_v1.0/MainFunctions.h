@@ -21,14 +21,13 @@ extern "C" {
 
 #endif	/* MAINFUNCTIONS_H */
 
-void goToPos1();
-void goToPos2();
+
+//void goToPos1();
+//void goToPos2();
 void goToPieza();
 void SwitchToPing();
 void SwitchToHC();
-void sweep(char direction);
-void step(char direction);
 void buscaHoyo(char initial_direction);
-void goto_oilrigs();
-void buscaRig(char init);
-void grab_pieza1();
+//void goto_oilrigs();
+void buscaRig(char init, char dir, unsigned short limit);
+//void grab_pieza1();
