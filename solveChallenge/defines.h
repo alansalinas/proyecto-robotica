@@ -1,0 +1,57 @@
+//States
+#define POSITION1 		0
+#define POSITION2		1
+#define GOTO_LOADZONE 		2
+#define SCAN_TOOL		3
+#define PICK_TOOL		4
+#define GOTO_OILRIG		5
+#define INSERT_TOOL		6
+#define RETURN			7
+#define STOP			8
+#define ERROR			9
+
+//Commands
+#define CLEAR_CMD		0
+#define POSITION1_CMD		1
+#define POSITION2_CMD 	2
+#define GOTO_LOADZONE_CMD	3
+#define TOOL1_CMD	4
+#define TOOL2_CMD	5
+#define TOOL3_CMD	6
+#define GOTO_OILRIG_R_CMD	7
+#define GOTO_OILRIG_T_CMD	8
+#define GOTO_OILRIG_C_CMD	9
+#define MOVE_FORWARD_CMD	10
+#define MOVE_BACKWARD1_CMD	11
+#define MOVE_BACKWARD2_CMD	12
+#define FINAL_PUSH_CMD	13
+#define RETURN_CMD		14
+
+#define CAMERA_SERVO		0
+#define GRIPPER_BODY_SERVO	1
+#define GRIPPER_RIGHT_SERVO	2
+#define GRIPPER_LEFT_SERVO	3
+#define PUSH_GEAR_SERVO		4
+
+//Servo levels
+#define CAMERA_REST	(2500 * 4)
+#define CAMERA_DETECT_FLAME	(1750 * 4)
+#define CAMERA_DETECT_TOOL	(1000 * 4)
+
+#define GRIPPER_BODY_IN	(1700 * 4)
+#define GRIPPER_BODY_OUT	(860 * 4)
+
+#define GRIPPER_RIGHT_OPEN	(450 * 4)
+#define GRIPPER_RIGHT_CLOSED_R	(750 * 4)
+#define GRIPPER_RIGHT_CLOSED_T	(1050 * 4)
+#define GRIPPER_RIGHT_CLOSED_C	(870 * 4)
+#define GRIPPER_RIGHT_CLOSED	(1050 * 4)
+
+#define GRIPPER_LEFT_OPEN	(2250 * 4)
+#define GRIPPER_LEFT_CLOSED_R	(1600 * 4)
+#define GRIPPER_LEFT_CLOSED_T	(1395 * 4)
+#define GRIPPER_LEFT_CLOSED_C	(1700 * 4)
+#define GRIPPER_LEFT_CLOSED	(1350 * 4)
+
+#define PUSH_GEAR_IN	(2200 * 4)
+#define PUSH_GEAR_OUT	(850 * 4)
