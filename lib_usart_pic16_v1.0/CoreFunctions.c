@@ -8,7 +8,6 @@ volatile unsigned long timer0_overflow_count;
 
 volatile unsigned short pwm_LA1, pwm_LA2, pwm_LB1, pwm_LB2;
 volatile unsigned short pwm_RA1, pwm_RA2, pwm_RB1, pwm_RB2;
-volatile unsigned long ms;
 
 short uLeft, uRight;
 unsigned short limitL, limitR;

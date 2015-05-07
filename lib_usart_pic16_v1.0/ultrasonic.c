@@ -7,6 +7,7 @@
 
 
 unsigned short time;
+char seesleft,seesright;
 
 
 void setup_sensors(){
@@ -104,4 +105,44 @@ char seesBoth(){
         return 1;
     }
     return 0;
+}
+
+void sees_debounce()
+{
+    char times = 0;
+    unsigned char seesleftcount= 0;
+    unsigned char seesrightcount = 0;
+
+    while(times < 7)
+    {
+        readSensors();
+        __delay_ms(10);
+        if(uLeft > MAX_DISTANCE)
+            seesleftcount++;
+        else
+            seesleftcount--;
+
+        if(uRight > MAX_DISTANCE)
+            seesrightcount++;
+        else
+            seesrightcount--;
+
+        //printf("uleft: %d, uright: %d\n",uLeft,uRight);
+
+        times++;
+    }
+
+    if (seesleftcount < 200)
+        seesleft = FALSE;
+    else
+        seesleft = TRUE;
+
+    if (seesrightcount < 200)
+        seesright = FALSE;
+    else
+        seesright = TRUE;
+
+    printf("SeesL: %d, Lcount: %u, SeesR: %d, Rcount: %u\n",seesleft,seesleftcount,seesright,seesrightcount);
+
+
 }

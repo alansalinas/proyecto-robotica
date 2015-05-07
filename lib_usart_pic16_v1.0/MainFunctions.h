@@ -29,5 +29,5 @@ void SwitchToPing();
 void SwitchToHC();
 void buscaHoyo(char initial_direction);
 //void goto_oilrigs();
-void buscaRig(char init, char dir, unsigned short limit);
+void buscaRig(char init,char sensor, char dir, unsigned short limit);
 //void grab_pieza1();

@@ -29,6 +29,9 @@
 Global program variables
 */
 
+char rig;
+unsigned long alinea_t;
+
 //unsigned long t;
 
 void setup() {
@@ -51,6 +54,31 @@ void setup() {
 
 }
 
+void alinear()
+{
+    if(millis() - alinea_t > 2500)
+    {
+        backward(45);
+        __delay_ms(200);
+        alinea_t = millis();
+    }
+}
+
+void mete_pos()
+{
+    backward(45);
+    __delay_ms(600);
+
+    positionControlPing_pieza(METE_SETPOINT_1, FALSE);
+
+   if(rig == RIG_RECTANGULO)
+        left(100);
+    else
+     right(100);
+
+     __delay_ms(CENTRA_RIG);
+     stopMotors();
+}
 /////////////////////////////////////
 /*
             MAIN LOOP
@@ -61,13 +89,14 @@ int main(int argc, char** argv) {
 
     unsigned char pieza;
     unsigned char inputData;
+    unsigned long t;
+    char correction_dir;
 
     setup();
 
-    //t = millis();
-
+    t = millis();
+ 
     printf("START ROBOT\n");
-
 
     // Loop forever
     while (1) {
@@ -88,7 +117,49 @@ int main(int argc, char** argv) {
 
         switch (inputData) {
             case POSITION1_CMD:
-                Control(PING, POS_SETPOINT_PING);
+                sees_debounce();
+
+                if (!seesleft || !seesright)
+                {
+                    if(!seesleft)
+                    {
+                        //printf("not sees left\n");
+                        correction_dir = LEFT;
+                        buscaRig(TRUE, LEFT, RIGHT, MAX_DISTANCE);
+                        right(80);
+                        __delay_ms(112);
+                        stopMotors();
+                        Control(PING, POS_SETPOINT_PING);
+
+
+                    }else if (!seesright)
+                    {
+                        //printf("not sees right\n");
+                        correction_dir = RIGHT;
+                        buscaRig(TRUE, RIGHT, LEFT, MAX_DISTANCE);
+                        left(80);
+                        __delay_ms(112);
+                        stopMotors();
+                        Control(PING, POS_SETPOINT_PING);
+                    }
+
+                    if(correction_dir == LEFT)
+                    {
+                        left(100);
+                        __delay_ms(1000);
+                    }else
+                    {
+                        right(100);
+                        __delay_ms(1000);
+                    }
+
+                    stopMotors();
+
+                }
+                else{
+                    printf("uleft: %d, uright: %d\n",uLeft,uRight);
+                    Control(PING, POS_SETPOINT_PING);
+                }
                 break;
 
             case POSITION2_CMD:
@@ -102,39 +173,38 @@ int main(int argc, char** argv) {
             case GOTO_LOADZONE_CMD:
                 SwitchToHC();
                 left(50);
-                __delay_ms(800);
-                positionControlPing_pieza(PIEZA1_LOADZONE_SETPOINT);
+                __delay_ms(DELAY_CMD_3);
+                positionControlPing_pieza(PIEZA1_LOADZONE_SETPOINT, TRUE);
                 stopMotors();
-                printf("FOUNDLOADZONE\n");
-                __delay_ms(500);
+                //printf("FOUNDLOADZONE\n");
                 break;
 
             case TOOL1_CMD:
-                printf("backwarding\n");
+               // printf("backwarding\n");
                 backward(70);
                 __delay_ms(100);
                 right(100);
                 __delay_ms(300);
-                printf("PING SWITCHED\n");
+                //printf("PING SWITCHED\n");
 
                 // SWITCH TO PING W/O HC CONTROL
                 rotateLeft(SWITCH_SPEED);
                 __delay_ms(ROTATION_DELAY);
                 stopMotors();
 
-                printf("CONTROL PING\n");
+               // printf("CONTROL PING\n");
                 Control(PING, POS_SETPOINT_PING);
 
-                printf("aligning\n");
+                //printf("aligning\n");
                 forward(50);
                 __delay_ms(1500);
                 stopMotors();
-                printf("backward\n");
+                //printf("backward\n");
                 backward(100);
                 __delay_ms(550);
                 stopMotors();
 
-                buscaRig(TRUE, RIGHT, PIEZA1_THRESHOLD);
+                buscaRig(TRUE, RIGHT, RIGHT, PIEZA1_THRESHOLD);
 
                 right(100);
                 __delay_ms(PIEZA1_DELAY);
@@ -155,10 +225,11 @@ int main(int argc, char** argv) {
                 break;
 
             case GOTO_OILRIG_R_CMD:
+                rig = RIG_RECTANGULO;
                 if (pieza != 1)
                     SwitchToPing();
 
-		printf("START OIL RIG NAVIGATION (Rect)\n");
+		//printf("START OIL RIG NAVIGATION (Rect)\n");
                 //printf("FIRST BUMP\n");
                 buscaHoyo(LEFT);
                 forward(JUMP_SPEED);
@@ -177,11 +248,22 @@ int main(int argc, char** argv) {
                 forward(JUMP_SPEED);
                 __delay_ms(JUMP_DELAY);//__delay_ms(JUMP_DELAY);
                 stopMotors();
-                printf("OIL RIGS ZONE OK\n");
+               // printf("OIL RIGS ZONE OK\n");
+
+                // encontrar borde izquierdo
+                do{
+                    readLimits();
+                    alinear();
+                    left(80);
+                }while(limitL > LEFT_LIMIT);
+
+                buscaRig(TRUE, LEFT, RIGHT, 800);
+                mete_pos();
                 break;
 
             case GOTO_OILRIG_T_CMD:
-		printf("START OIL RIG NAVIGATION (Triang)\n");
+		//printf("START OIL RIG NAVIGATION (Triang)\n");
+                rig = RIG_TRIANGULO;
                 if (pieza != 1)
                     SwitchToPing();
 
@@ -201,13 +283,29 @@ int main(int argc, char** argv) {
 
                  buscaHoyo(LEFT);
                 forward(JUMP_SPEED);
-                __delay_ms(JUMP_DELAY);//__delay_ms(JUMP_DELAY);
+                __delay_ms(JUMP_DELAY);
                 stopMotors();
-                printf("OIL RIGS ZONE OK\n");
+                //printf("OIL RIGS ZONE OK\n");
+
+                // encontrar borde derecho
+                do{
+                    readLimits();
+                    alinear();
+                    right(80);
+                }while(limitR > RIGHT_LIMIT);
+
+                buscaRig(TRUE, RIGHT, LEFT, 800);    // primer oil rig circulo
+                left(80);
+                __delay_ms(1500);
+                backward(45);
+                __delay_ms(250);
+                buscaRig(TRUE, RIGHT, LEFT, 800);    // segundo rig triangulo
+                mete_pos();
                 break;
 
             case GOTO_OILRIG_C_CMD:
-		printf("START OIL RIG NAVIGATION (Circ)\n");
+		//printf("START OIL RIG NAVIGATION (Circ)\n");
+                rig = RIG_CIRCULO;
                 if (pieza != 1)
                     SwitchToPing();
                 //printf("FIRST BUMP\n");
@@ -226,17 +324,82 @@ int main(int argc, char** argv) {
 
                  buscaHoyo(LEFT);
                 forward(JUMP_SPEED);
-                __delay_ms(JUMP_DELAY);//__delay_ms(JUMP_DELAY);
+                __delay_ms(JUMP_DELAY);
                 stopMotors();
-                printf("OIL RIGS ZONE OK\n");
+                //printf("OIL RIGS ZONE OK\n");
+
+                backward(45);
+                __delay_ms(300);
+
+                // encontrar borde derecho
+                do{
+                    readLimits();
+                    alinear();
+                    right(80);
+                }while(limitR > RIGHT_LIMIT);
+
+                buscaRig(TRUE, RIGHT, LEFT, 800);
+                mete_pos();
                 break;
 
-            case PUSH_TOOL_CMD:
-                //En el estado 0 trabaja la raspberry
+            case PUSH_TOOL_1:
+                forward(60);
+                __delay_ms(DELAY_PUSH_1);
+                stopMotors();
+                break;
+
+            case PUSH_TOOL_2:
+                backward(60);
+                __delay_ms(DELAY_PUSH_2);
+                stopMotors();
+                break;
+
+            case PUSH_TOOL_3:
+                backward(60);
+                __delay_ms(500);
+                stopMotors();
+                break;
+
+            case PUSH_TOOL_4:
+                forward(60);
+                __delay_ms(DELAY_PUSH_4);
+                stopMotors();
                 break;
 
             case RETURN_CMD:
-                //En el estado 0 trabaja la raspberry
+                backward(100);
+                __delay_ms(200);
+                stopMotors();
+                rotateLeft(200);
+                __delay_ms(2900);
+                stopMotors();
+
+                buscaHoyo(LEFT);
+                forward(JUMP_SPEED);
+                __delay_ms(JUMP_DELAY);
+                    stopMotors();
+                //printf("SECOND BUMP\n");
+
+                buscaHoyo(LEFT);
+                forward(JUMP_SPEED);
+                __delay_ms(JUMP_DELAY);
+                stopMotors();
+
+               // printf("THIRD BUMP\n");
+
+                 buscaHoyo(LEFT);
+                forward(JUMP_SPEED);
+                __delay_ms(JUMP_DELAY);
+                stopMotors();
+
+                // encontrar borde derecho
+                do{
+                    readLimits();
+                    alinear();
+                    right(80);
+                }while(limitR > RIGHT_LIMIT);
+
+                stopMotors();
                 break;
         }
 
@@ -248,8 +411,10 @@ int main(int argc, char** argv) {
 
             printf("Esperando clear...\n");
         } while (inputData != 0);
+        
+          
 
-    }
+    }   // end while
 
     return (1);
 

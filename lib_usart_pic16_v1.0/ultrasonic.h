@@ -21,9 +21,12 @@ extern "C" {
 
 #endif	/* ULTRASONIC_H */
 
+extern char seesleft,seesright;
+
 void setup_sensors();
 void readSensors();
 void readHC();
 void readLimits();
 char seesOne();
 char seesBoth();
+void sees_debounce();

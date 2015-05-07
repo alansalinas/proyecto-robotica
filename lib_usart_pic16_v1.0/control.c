@@ -138,7 +138,7 @@ void positionControlHC_pieza(short setpoint)
     readHC();
 
     if (seesBoth() == 1){
-    printf("EFECTIVE pos control HC pieza: %d\n", uRight);
+    //printf("EFECTIVE pos control HC pieza: %d\n", uRight);
 
     if (error < MAXPOS+100 && error > -MAXPOS-100){
     if (error > ERR_POS)
@@ -154,11 +154,11 @@ void positionControlHC_pieza(short setpoint)
 
   } // end while
    times++;
-   printf("TIMES UPDATE: %u\n",times);
+   //printf("TIMES UPDATE: %u\n",times);
    stopMotors();
 }
 
-void positionControlPing_pieza(short setpoint)
+void positionControlPing_pieza(short setpoint, char correct_left)
 {
    int error;
    unsigned long t_2 = millis();
@@ -190,7 +190,7 @@ void positionControlPing_pieza(short setpoint)
     }   // end if TS
 
 
-     if(millis() - t_2 > 2000)
+     if(millis() - t_2 > 2000 && correct_left)
      {
             left(50);
             __delay_ms(100);
@@ -201,7 +201,7 @@ void positionControlPing_pieza(short setpoint)
   } // end while
   stopMotors();
   times++;
-  printf("TIMES UPDATE: %u\n",times);
+  //printf("TIMES UPDATE: %u\n",times);
    }// end main while (times)
 }
 
@@ -210,6 +210,16 @@ void Control(char sensor_set, short setpoint)
 {
     times=0;
     printf("\nCONTROLLING...\n");
+
+    if(sensor_set == HC)
+            readHC();
+        else
+            readSensors();
+
+    sees_debounce();
+
+
+    if(seesleft && seesright){
     while (times < DEBOUNCE_COUNT){
           rotationControl(sensor_set);
 
@@ -221,6 +231,7 @@ void Control(char sensor_set, short setpoint)
             
            times++;
     }
+    }
     stopMotors();
     printf("CONTROLLED\n");
            
@@ -229,12 +240,12 @@ void Control(char sensor_set, short setpoint)
 void ControlPieza(short setpoint)
 {
     times = 0;
-    printf("ENTER CONTROL LOOP\n");
+    //printf("ENTER CONTROL LOOP\n");
     while (times < DEBOUNCE_COUNT)
     {
         positionControlHC_pieza(setpoint);
     }
-    printf("EXIT CONTROL LOOP\n");
+    //printf("EXIT CONTROL LOOP\n");
 
 }
 

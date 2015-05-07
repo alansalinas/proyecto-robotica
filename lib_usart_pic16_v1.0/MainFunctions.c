@@ -9,7 +9,7 @@
 #include "usart_pic16.h"
 #include "control.h"
 
-//unsigned long t;
+unsigned long t;
 char times;
 
 void SwitchToPing()
@@ -43,7 +43,7 @@ void buscaHoyo(char initial_direction){
         {
             Control(PING, POS_SETPOINT_PING);
 
-            printf("%d, %d\n", uLeft, uRight);
+            //printf("%d, %d\n", uLeft, uRight);
             t_control = millis();
         }
 
@@ -70,6 +70,11 @@ void buscaHoyo(char initial_direction){
         // continue motion for a small delay to center robot
         __delay_ms(100);
         stopMotors();
+        forward(45);
+        __delay_ms(1000);
+        backward(100);
+        __delay_ms(200);
+        stopMotors();
    
 }
 
@@ -83,20 +88,21 @@ void rigs_pos_inicial()
     
 }
 
-void buscaRig(char init, char dir, unsigned short limit)
+void buscaRig(char init, char sensor, char dir, unsigned short limit)
 {
-    char seesRight = !init;
-    char actualRight;
+    char sees_sensor = !init;
+    unsigned short reading;
+    char actualSensor;
     unsigned long t, t_control;
 
     t = millis();
     times = 0;
 
-    printf("EMPIEZA BUSCA RIG init: %d, seesleft: %d\n",init,seesRight);
+    printf("EMPIEZA BUSCA RIG init: %d, seesleft: %d, SENSOR: %d\n",init,sees_sensor,sensor);
     if(dir == LEFT)
-        left(77);
+        left(70);
     else
-        right(77);
+        right(70);
 
     do{
         if(millis() - t > TS)
@@ -104,27 +110,32 @@ void buscaRig(char init, char dir, unsigned short limit)
             readSensors();
             t = millis();
         }
+
+        if(sensor == RIGHT)
+            reading = uRight;
+        else
+            reading = uLeft;
         
         // ajustar bandera para debounce
-        if(uRight > limit)
-                actualRight = FALSE;
+        if(reading > limit)
+                actualSensor = FALSE;
             else
-                actualRight = TRUE;
+                actualSensor = TRUE;
 
-            if(seesRight != actualRight)
+            if(sees_sensor != actualSensor)
             {
                 times++;
-                printf("times update: %d, distancer: %u\n", times, uRight);
+                printf("times update: %d, distancer: %u\n", times, reading);
             }else
             {
                 times = 0;
-                printf("times update: %d, distancer: %u\n", times, uRight);
+                printf("times update: %d, distancer: %u\n", times, reading);
             }
 
-            if(times >= DEBOUNCE_COUNT && actualRight != seesRight)
-                seesRight = actualRight;
+            if(times >= DEBOUNCE_COUNT && actualSensor != sees_sensor)
+                sees_sensor = actualSensor;
 
-    }while(seesRight != init);
+    }while(sees_sensor != init);
 
         stopMotors();
         printf("FOUND EDGE RIG \n");

@@ -53,7 +53,7 @@ extern "C" {
 #define LIMIT_LEFT 200      // left limit sensor threshold
 #define LIMIT_RIGHT 200     // right limit sensor threshold
 
-#define DEBOUNCE_COUNT 8    // count for debouncing stable state
+#define DEBOUNCE_COUNT 7    // count for debouncing stable state
 
 //
 //  DEFINE PIN ASSIGNMENTS
@@ -142,19 +142,22 @@ extern "C" {
 #define GOTO_OILRIG_R_CMD   7
 #define GOTO_OILRIG_T_CMD   8
 #define GOTO_OILRIG_C_CMD   9
-#define PUSH_TOOL_CMD	11
-#define RETURN_CMD  12
+#define PUSH_TOOL_1	10
+#define PUSH_TOOL_2 11
+#define PUSH_TOOL_3 12
+#define PUSH_TOOL_4 13
+#define RETURN_CMD  14
 
 
 
 /*
         Control Parameter Definitions
  */
-#define ERR_ROT 10  // rotational error tolerance
+#define ERR_ROT 14  // rotational error tolerance
 #define ERR_POS 9  // positional error tolerance
 #define MAXPOS 500 // maximum position accetable for correction
 #define MAXROT 350  // maximum error tolarated for rotation correction
-#define POS_SETPOINT_PING 400    // setpoint for position contol during navigation
+#define POS_SETPOINT_PING 300    // setpoint for position contol during navigation
 #define POS_SETPOINT_HC 110
 
 #define ORDER 5    // Digital Filter order
@@ -163,22 +166,22 @@ extern "C" {
 #define TS 50       // digital control sampling time
 #define CONTROL_TIME 1700   // period of Control() recurrent calling during sweep
 
-#define ROTATION_DELAY 1600     // delay for rotation in switchHC or ping function
-#define MAX_DISTANCE 500        // max distance tolerated for seesBoth function
+#define ROTATION_DELAY 1400     // delay for rotation in switchHC or ping function
+#define MAX_DISTANCE 450        // max distance tolerated for seesBoth function
 
-#define SWEEP_SPEED 180
+#define SWEEP_SPEED 145
 #define STEP_SIZE 200   // robot step time length in milliseconds
 #define STEP_VEL 90       // robot step manipulation for motors
 #define JUMP_SPEED 220  // speed for jumping into next lane
-#define JUMP_DELAY 1100 // delay for bump jump in milliseconds
+#define JUMP_DELAY 1350 // delay for bump jump in milliseconds
 
 #define SWITCH_SPEED 140   // speed for 90dg sensor switching
 
-#define LEFT_LIMIT 48
-#define RIGHT_LIMIT 55
+#define LEFT_LIMIT 50
+#define RIGHT_LIMIT 50
 
 #define PIEZA1_THRESHOLD 150    // limite para ver en ping derecho pieza1
-#define PIEZA1_DELAY 250    // setpoint para centrarse horizonatlmente
+#define PIEZA1_DELAY 220    // setpoint para centrarse horizonatlmente
 #define PIEZA1_SETPOINT 606 // setpoint para centrar verticalmente
 #define PIEZA1_LOADZONE_SETPOINT 112    // setpoint de aproximacion en paso3
 
@@ -186,6 +189,19 @@ extern "C" {
 #define POS_2 201
 #define POS_3 392
 
-#define POS2_DELAY 3150
+#define POS2_DELAY 3150 // delay desplazamiento cmd1 a cmd2
+#define DELAY_CMD_3 500 // delay para alinearse de lado en cmd3
+
+#define METE_SETPOINT_1 280 // setpoint de aproximacion a primera posicion de meter pieza
+#define CENTRA_RIG 135      // delay en ms para corregir centro en rig
+#define DELAY_PUSH_1 1000
+#define DELAY_PUSH_2 350
+#define DELAY_PUSH_4 1000
+
+
+// rigs
+#define RIG_CIRCULO 1
+#define RIG_TRIANGULO 2
+#define RIG_RECTANGULO 3
 
 
