@@ -64,19 +64,27 @@ void alinear()
     }
 }
 
-void mete_pos()
+void mete_pos(char sensor)
 {
     backward(45);
-    __delay_ms(600);
+    __delay_ms(1200);
 
-    positionControlPing_pieza(METE_SETPOINT_1, FALSE);
+    positionControlPing_pieza(METE_SETPOINT_1, FALSE, sensor);
 
    if(rig == RIG_RECTANGULO)
         left(100);
     else
      right(100);
 
-     __delay_ms(CENTRA_RIG);
+    if(rig == RIG_RECTANGULO)
+     __delay_ms(CENTRA_RIG_RECTANGULO);
+
+    if(rig == RIG_TRIANGULO)
+     __delay_ms(CENTRA_RIG_TRIANGULO);
+
+    if(rig == RIG_CIRCULO)
+     __delay_ms(CENTRA_RIG_CIRCULO);
+
      stopMotors();
 }
 /////////////////////////////////////
@@ -160,6 +168,10 @@ int main(int argc, char** argv) {
                     printf("uleft: %d, uright: %d\n",uLeft,uRight);
                     Control(PING, POS_SETPOINT_PING);
                 }
+
+                right(150);
+                __delay_ms(1000);
+                stopMotors();
                 break;
 
             case POSITION2_CMD:
@@ -174,7 +186,7 @@ int main(int argc, char** argv) {
                 SwitchToHC();
                 left(50);
                 __delay_ms(DELAY_CMD_3);
-                positionControlPing_pieza(PIEZA1_LOADZONE_SETPOINT, TRUE);
+                positionControlPing_pieza(PIEZA1_LOADZONE_SETPOINT, TRUE, RIGHT);
                 stopMotors();
                 //printf("FOUNDLOADZONE\n");
                 break;
@@ -226,8 +238,13 @@ int main(int argc, char** argv) {
 
             case GOTO_OILRIG_R_CMD:
                 rig = RIG_RECTANGULO;
-                if (pieza != 1)
+                if (pieza != 1){
+                    if(pieza == 3){
+                        left(100);
+                        __delay_ms(350);
+                    }
                     SwitchToPing();
+                }
 
 		//printf("START OIL RIG NAVIGATION (Rect)\n");
                 //printf("FIRST BUMP\n");
@@ -258,14 +275,25 @@ int main(int argc, char** argv) {
                 }while(limitL > LEFT_LIMIT);
 
                 buscaRig(TRUE, LEFT, RIGHT, 800);
-                mete_pos();
+
+                backward(45);
+                __delay_ms(600);
+                
+                right(150);
+                __delay_ms(120);
+                stopMotors();
                 break;
 
             case GOTO_OILRIG_T_CMD:
 		//printf("START OIL RIG NAVIGATION (Triang)\n");
                 rig = RIG_TRIANGULO;
-                if (pieza != 1)
+                if (pieza != 1){
+                    if(pieza == 3){
+                        left(100);
+                        __delay_ms(350);
+                    }
                     SwitchToPing();
+                }
 
                 //printf("FIRST BUMP\n");
                 buscaHoyo(LEFT);
@@ -295,19 +323,30 @@ int main(int argc, char** argv) {
                 }while(limitR > RIGHT_LIMIT);
 
                 buscaRig(TRUE, RIGHT, LEFT, 800);    // primer oil rig circulo
-                left(80);
-                __delay_ms(1500);
+                left(1500);
+                __delay_ms(1000);
                 backward(45);
-                __delay_ms(250);
+                __delay_ms(1500);
                 buscaRig(TRUE, RIGHT, LEFT, 800);    // segundo rig triangulo
-                mete_pos();
+
+                backward(45);
+                __delay_ms(600);
+
+                left(150);
+                __delay_ms(120);
+                stopMotors();
                 break;
 
             case GOTO_OILRIG_C_CMD:
 		//printf("START OIL RIG NAVIGATION (Circ)\n");
                 rig = RIG_CIRCULO;
-                if (pieza != 1)
+                if (pieza != 1){
+                    if(pieza == 3){
+                        left(100);
+                        __delay_ms(350);
+                    }
                     SwitchToPing();
+                }
                 //printf("FIRST BUMP\n");
                 buscaHoyo(LEFT);
                 forward(JUMP_SPEED);
@@ -329,7 +368,7 @@ int main(int argc, char** argv) {
                 //printf("OIL RIGS ZONE OK\n");
 
                 backward(45);
-                __delay_ms(300);
+                __delay_ms(1000);
 
                 // encontrar borde derecho
                 do{
@@ -339,11 +378,17 @@ int main(int argc, char** argv) {
                 }while(limitR > RIGHT_LIMIT);
 
                 buscaRig(TRUE, RIGHT, LEFT, 800);
-                mete_pos();
+
+                backward(45);
+                __delay_ms(600);
+                
+                left(150);
+                __delay_ms(120);
+                stopMotors();
                 break;
 
             case PUSH_TOOL_1:
-                forward(60);
+                forward(120);
                 __delay_ms(DELAY_PUSH_1);
                 stopMotors();
                 break;
@@ -400,6 +445,22 @@ int main(int argc, char** argv) {
                 }while(limitR > RIGHT_LIMIT);
 
                 stopMotors();
+                break;
+
+            case 15:
+                // pasito
+                if(rig == RIG_CIRCULO || rig == RIG_TRIANGULO)
+                 right(120);
+                else
+                    left(120);
+
+                __delay_ms(60);
+                stopMotors();
+
+                backward(45);
+                __delay_ms(300);
+                stopMotors();
+
                 break;
         }
 

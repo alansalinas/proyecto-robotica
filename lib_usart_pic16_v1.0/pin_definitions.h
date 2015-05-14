@@ -157,8 +157,8 @@ extern "C" {
 #define ERR_POS 9  // positional error tolerance
 #define MAXPOS 500 // maximum position accetable for correction
 #define MAXROT 350  // maximum error tolarated for rotation correction
-#define POS_SETPOINT_PING 300    // setpoint for position contol during navigation
-#define POS_SETPOINT_HC 110
+#define POS_SETPOINT_PING 380    // setpoint for position contol during navigation
+#define POS_SETPOINT_HC 210 // 110
 
 #define ORDER 5    // Digital Filter order
 #define MAX_VEL 50 // maximum motor pwm duty cycle
@@ -166,14 +166,14 @@ extern "C" {
 #define TS 50       // digital control sampling time
 #define CONTROL_TIME 1700   // period of Control() recurrent calling during sweep
 
-#define ROTATION_DELAY 1400     // delay for rotation in switchHC or ping function
+#define ROTATION_DELAY 1530     // delay for rotation in switchHC or ping function
 #define MAX_DISTANCE 450        // max distance tolerated for seesBoth function
 
 #define SWEEP_SPEED 145
 #define STEP_SIZE 200   // robot step time length in milliseconds
 #define STEP_VEL 90       // robot step manipulation for motors
 #define JUMP_SPEED 220  // speed for jumping into next lane
-#define JUMP_DELAY 1350 // delay for bump jump in milliseconds
+#define JUMP_DELAY 1150 // delay for bump jump in milliseconds
 
 #define SWITCH_SPEED 140   // speed for 90dg sensor switching
 
@@ -187,15 +187,17 @@ extern "C" {
 
 // setpoints para piezas con sensor HC derecho
 #define POS_2 201
-#define POS_3 392
+#define POS_3 384
 
-#define POS2_DELAY 3150 // delay desplazamiento cmd1 a cmd2
-#define DELAY_CMD_3 500 // delay para alinearse de lado en cmd3
+#define POS2_DELAY 2000 // delay desplazamiento cmd1 a cmd2
+#define DELAY_CMD_3 3000 // delay para alinearse de lado en cmd3
 
 #define METE_SETPOINT_1 280 // setpoint de aproximacion a primera posicion de meter pieza
-#define CENTRA_RIG 135      // delay en ms para corregir centro en rig
-#define DELAY_PUSH_1 1000
-#define DELAY_PUSH_2 350
+#define CENTRA_RIG_RECTANGULO 135      // delay en ms para corregir centro en rig
+#define CENTRA_RIG_TRIANGULO 135
+#define CENTRA_RIG_CIRCULO 135
+#define DELAY_PUSH_1 555
+#define DELAY_PUSH_2 209
 #define DELAY_PUSH_4 1000
 
 

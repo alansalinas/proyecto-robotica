@@ -68,7 +68,7 @@ void buscaHoyo(char initial_direction){
         }while (seesOne());
         
         // continue motion for a small delay to center robot
-        __delay_ms(100);
+        __delay_ms(74);
         stopMotors();
         forward(45);
         __delay_ms(1000);

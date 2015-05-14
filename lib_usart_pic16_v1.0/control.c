@@ -158,7 +158,7 @@ void positionControlHC_pieza(short setpoint)
    stopMotors();
 }
 
-void positionControlPing_pieza(short setpoint, char correct_left)
+void positionControlPing_pieza(short setpoint, char correct_left, char sensor)
 {
    int error;
    unsigned long t_2 = millis();
@@ -168,13 +168,20 @@ void positionControlPing_pieza(short setpoint, char correct_left)
 
    // Comprobar si hay error, detener movimientos previos
    readSensors();
-   error = setpoint - uRight;
+
+   if (sensor == LEFT)
+    error = setpoint - uLeft;
+   else
+       error = setpoint - uRight;
 
   while((error > ERR_POS || error < -ERR_POS)){ // && error < MAXPOS+100 && error > -MAXPOS-100
      if (millis() - lastreading >= TS)
     {
          times = 0;
-    error = setpoint - uRight;
+    if (sensor == LEFT)
+    error = setpoint - uLeft;
+   else
+       error = setpoint - uRight;
     readSensors();
 
     //printf("EFECTIVE PIEZA control: %d\n", error);
